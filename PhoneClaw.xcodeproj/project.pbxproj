@@ -264,7 +264,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			packageReferences = (
-				AA4000000000000000000001 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */,
+				AA4000000000000000000001 /* XCLocalSwiftPackageReference "mlx-swift-lm" */,
 				AA4000000000000000000002 /* XCRemoteSwiftPackageReference "mlx-swift" */,
 				AA4000000000000000000003 /* XCRemoteSwiftPackageReference "swift-tokenizers" */,
 			);
@@ -551,15 +551,14 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		AA4000000000000000000001 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ml-explore/mlx-swift-lm";
-			requirement = {
-				kind = branch;
-				branch = main;
-			};
+/* Begin XCLocalSwiftPackageReference section */
+		AA4000000000000000000001 /* XCLocalSwiftPackageReference "mlx-swift-lm" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "mlx-swift-lm";
 		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
 		AA4000000000000000000002 /* XCRemoteSwiftPackageReference "mlx-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ml-explore/mlx-swift";
