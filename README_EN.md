@@ -24,7 +24,7 @@ PhoneClaw is a local AI Agent that runs entirely on your iPhone. No internet con
 
 **Flexible Model Management**: Supports Gemma 4 E2B and E4B. Download models directly on your iPhone, or bundle them into the app at build time. Includes a built-in model switcher, system prompt editor, and automatic history trimming for iPhone memory constraints.
 
-## Built-in Skills
+## Built-in Skill Examples
 
 **Calendar**: Create calendar events using natural language — title, time, and location all supported.
 
