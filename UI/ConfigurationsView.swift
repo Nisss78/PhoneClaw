@@ -21,8 +21,11 @@ struct ConfigurationsView: View {
     @State private var permissionStatuses: [AppPermissionKind: AppPermissionStatus] = [:]
     @State private var requestingPermission: AppPermissionKind?
 
-    private var isChineseSystem: Bool {
-        Locale.preferredLanguages.contains { $0.hasPrefix("zh") }
+    private var currentLanguage: String {
+        let languages = Locale.preferredLanguages
+        if languages.contains(where: { $0.hasPrefix("ja") }) { return "ja" }
+        if languages.contains(where: { $0.hasPrefix("zh") }) { return "zh" }
+        return "en"
     }
 
     var body: some View {
@@ -30,9 +33,9 @@ struct ConfigurationsView: View {
             VStack(spacing: 0) {
                 // Tab 切换
                 HStack(spacing: 0) {
-                    tabButton(localized("模型设置", "Model Settings"), tag: 0)
-                    tabButton(localized("系统提示词", "System Prompt"), tag: 1)
-                    tabButton(localized("权限", "Permissions"), tag: 2)
+                    tabButton(localized("模型设置", "Model Settings", "モデル設定"), tag: 0)
+                    tabButton(localized("系统提示词", "System Prompt", "システムプロンプト"), tag: 1)
+                    tabButton(localized("权限", "Permissions", "権限"), tag: 2)
                 }
                 .padding(.horizontal)
 
@@ -53,9 +56,9 @@ struct ConfigurationsView: View {
                 // 底部按钮
                 HStack(spacing: 20) {
                     Spacer()
-                    Button(localized("取消", "Cancel")) { dismiss() }
+                    Button(localized("取消", "Cancel", "キャンセル")) { dismiss() }
                         .foregroundStyle(Theme.textSecondary)
-                    Button(localized("确定", "OK")) {
+                    Button(localized("确定", "OK", "OK")) {
                         if applySettings() {
                             dismiss()
                         }
@@ -68,7 +71,7 @@ struct ConfigurationsView: View {
                 }
                 .padding()
             }
-            .navigationTitle(localized("配置", "Configurations"))
+            .navigationTitle(localized("配置", "Configurations", "設定"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .background(Theme.bgElevated)
@@ -109,25 +112,25 @@ struct ConfigurationsView: View {
             VStack(alignment: .leading, spacing: 20) {
                 modelSection
                 configSlider(
-                    title: localized("最大 Token 数", "Max Tokens"),
+                    title: localized("最大 Token 数", "Max Tokens", "最大トークン数"),
                     value: $maxTokens,
                     range: 128...8192,
                     displayValue: "\(Int(maxTokens))"
                 )
                 configSlider(
-                    title: localized("采样 TopK", "TopK"),
+                    title: localized("采样 TopK", "TopK", "TopK"),
                     value: $topK,
                     range: 1...128,
                     displayValue: "\(Int(topK))"
                 )
                 configSlider(
-                    title: localized("采样 TopP", "TopP"),
+                    title: localized("采样 TopP", "TopP", "TopP"),
                     value: $topP,
                     range: 0...1,
                     displayValue: String(format: "%.2f", topP)
                 )
                 configSlider(
-                    title: localized("温度", "Temperature"),
+                    title: localized("温度", "Temperature", "温度"),
                     value: $temperature,
                     range: 0...2,
                     displayValue: String(format: "%.2f", temperature)
@@ -152,7 +155,7 @@ struct ConfigurationsView: View {
                         .strokeBorder(Theme.border, lineWidth: 1)
                 )
 
-            Button(localized("恢复默认", "Restore Default")) {
+            Button(localized("恢复默认", "Restore Default", "デフォルトに戻す")) {
                 systemPrompt = engine.defaultSystemPrompt
             }
             .font(.subheadline)
@@ -174,12 +177,12 @@ struct ConfigurationsView: View {
 
     private var modelSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(localized("模型", "Model"))
+            Text(localized("模型", "Model", "モデル"))
                 .font(.headline)
                 .foregroundStyle(Theme.textPrimary)
 
             Text(engine.llm.isLoaded
-                 ? localized("当前已加载：", "Loaded: ") + engine.llm.modelDisplayName
+                 ? localized("当前已加载：", "Loaded: ", "読み込み済み：") + engine.llm.modelDisplayName
                  : engine.llm.statusMessage)
                 .font(.subheadline)
                 .foregroundStyle(Theme.textSecondary)
@@ -252,7 +255,7 @@ struct ConfigurationsView: View {
 
     private var permissionsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(localized("权限", "Permissions"))
+            Text(localized("权限", "Permissions", "権限"))
                 .font(.headline)
                 .foregroundStyle(Theme.textPrimary)
 
@@ -310,8 +313,8 @@ struct ConfigurationsView: View {
             HStack(spacing: 10) {
                 if !status.isGranted {
                     Button(requestingPermission == kind
-                           ? localized("请求中...", "Requesting...")
-                           : localized("请求权限", "Request Access")) {
+                           ? localized("请求中...", "Requesting...", "要求中...")
+                           : localized("请求权限", "Request Access", "権限を要求")) {
                         requestPermission(kind)
                     }
                     .disabled(requestingPermission != nil)
@@ -322,7 +325,7 @@ struct ConfigurationsView: View {
                     .background(Theme.accent.opacity(0.15), in: Capsule())
                 }
 
-                Button(localized("去设置", "Open Settings")) {
+                Button(localized("去设置", "Open Settings", "設定を開く")) {
                     openAppSettings()
                 }
                 .font(.caption.weight(.semibold))
@@ -365,7 +368,7 @@ struct ConfigurationsView: View {
     private func modelStateControl(for model: BundledModelOption, state: ModelInstallState) -> some View {
         switch state {
         case .notInstalled:
-            Button(localized("下载", "Download")) {
+            Button(localized("下载", "Download", "ダウンロード")) {
                 selectedModelID = model.id
                 Task {
                     await engine.llm.downloadModel(id: model.id)
@@ -383,15 +386,15 @@ struct ConfigurationsView: View {
             .padding(.vertical, 6)
             .background(Theme.accent.opacity(0.15), in: Capsule())
         case .checkingSource:
-            modelBadge(localized("检查中", "Checking"))
+            modelBadge(localized("检查中", "Checking", "確認中"))
         case .downloading(let completedFiles, let totalFiles, _):
-            modelBadge(localized("下载中 \(completedFiles)/\(totalFiles)", "Downloading \(completedFiles)/\(totalFiles)"))
+            modelBadge(localized("下载中 \(completedFiles)/\(totalFiles)", "Downloading \(completedFiles)/\(totalFiles)", "ダウンロード中 \(completedFiles)/\(totalFiles)"))
         case .downloaded:
-            modelBadge(localized("已下载", "Downloaded"), color: Theme.accentGreen)
+            modelBadge(localized("已下载", "Downloaded", "ダウンロード済み"), color: Theme.accentGreen)
         case .bundled:
-            modelBadge(localized("内置", "Bundled"), color: Theme.accentGreen)
+            modelBadge(localized("内置", "Bundled", "内蔵"), color: Theme.accentGreen)
         case .failed:
-            Button(localized("重试", "Retry")) {
+            Button(localized("重试", "Retry", "再試行")) {
                 selectedModelID = model.id
                 Task {
                     await engine.llm.downloadModel(id: model.id)
@@ -417,15 +420,15 @@ struct ConfigurationsView: View {
     private func modelStateDetail(_ state: ModelInstallState) -> String? {
         switch state {
         case .notInstalled:
-            return localized("未安装", "Not Installed")
+            return localized("未安装", "Not Installed", "未インストール")
         case .checkingSource:
-            return localized("正在检查模型下载源。", "Checking the model download source.")
+            return localized("正在检查模型下载源。", "Checking the model download source.", "モデルのダウンロード元を確認中。")
         case .downloading(_, _, let currentFile):
-            return localized("正在下载：", "Downloading: ") + currentFile
+            return localized("正在下载：", "Downloading: ", "ダウンロード中：") + currentFile
         case .downloaded:
-            return localized("已下载到手机本地，可直接加载。", "Downloaded on device and ready to load.")
+            return localized("已下载到手机本地，可直接加载。", "Downloaded on device and ready to load.", "デバイスにダウンロード済み、読み込み可能。")
         case .bundled:
-            return localized("模型已随 App 内置。", "This model is bundled inside the app.")
+            return localized("模型已随 App 内置。", "This model is bundled inside the app.", "モデルはアプリに内蔵されています。")
         case .failed(let message):
             return message
         }
@@ -433,77 +436,81 @@ struct ConfigurationsView: View {
 
     private var modelFooterText: String {
         guard let selectedModel = engine.availableModels.first(where: { $0.id == selectedModelID }) else {
-            return localized("点右侧按钮下载模型后再点击确定。", "Download a model first, then tap OK.")
+            return localized("点右侧按钮下载模型后再点击确定。", "Download a model first, then tap OK.", "右のボタンでモデルをダウンロードしてからOKを押してください。")
         }
 
         if !engine.llm.isModelAvailable(selectedModel) {
-            return localized("先下载选中的模型，再点击确定加载。", "Download the selected model first, then tap OK to load it.")
+            return localized("先下载选中的模型，再点击确定加载。", "Download the selected model first, then tap OK to load it.", "選択したモデルをダウンロードしてからOKを押してください。")
         }
 
         if selectedModelID == engine.llm.selectedModelID,
            engine.llm.loadedModelID == selectedModelID,
            engine.llm.isLoaded {
-            return localized("点击确定会保留当前模型。", "Tap OK to keep the current model.")
+            return localized("点击确定会保留当前模型。", "Tap OK to keep the current model.", "OKを押すと現在のモデルを維持します。")
         }
 
-        return localized("点击确定后会卸载当前模型并重新加载新模型。", "Tap OK to unload the current model and reload the new one.")
+        return localized("点击确定后会卸载当前模型并重新加载新模型。", "Tap OK to unload the current model and reload the new one.", "OKを押すと現在のモデルをアンロードして新しいモデルを再読み込みします。")
     }
 
     // MARK: - 加载 / 应用
 
-    private func localized(_ zh: String, _ en: String) -> String {
-        isChineseSystem ? zh : en
+    private func localized(_ zh: String, _ en: String, _ ja: String? = nil) -> String {
+        switch currentLanguage {
+        case "ja": return ja ?? en
+        case "zh": return zh
+        default: return en
+        }
     }
 
     private func permissionTitle(_ kind: AppPermissionKind) -> String {
         switch kind {
         case .microphone:
-            return localized("麦克风", "Microphone")
+            return localized("麦克风", "Microphone", "マイク")
         case .calendar:
-            return localized("日历", "Calendar")
+            return localized("日历", "Calendar", "カレンダー")
         case .reminders:
-            return localized("提醒事项", "Reminders")
+            return localized("提醒事项", "Reminders", "リマインダー")
         case .contacts:
-            return localized("通讯录", "Contacts")
+            return localized("通讯录", "Contacts", "連絡先")
         }
     }
 
     private func permissionDescription(_ kind: AppPermissionKind) -> String {
         switch kind {
         case .microphone:
-            return localized("允许录音并采集实时音频输入", "Allow recording and capturing realtime audio input")
+            return localized("允许录音并采集实时音频输入", "Allow recording and capturing realtime audio input", "録音とリアルタイム音声入力の取得を許可")
         case .calendar:
-            return localized("允许创建和写入日历事项", "Allow creating and writing calendar events")
+            return localized("允许创建和写入日历事项", "Allow creating and writing calendar events", "カレンダーイベントの作成と書き込みを許可")
         case .reminders:
-            return localized("允许创建提醒和待办", "Allow creating reminders and tasks")
+            return localized("允许创建提醒和待办", "Allow creating reminders and tasks", "リマインダーとタスクの作成を許可")
         case .contacts:
-            return localized("允许保存和更新联系人", "Allow saving and updating contacts")
+            return localized("允许保存和更新联系人", "Allow saving and updating contacts", "連絡先の保存と更新を許可")
         }
     }
 
     private func permissionStatusLabel(_ status: AppPermissionStatus) -> String {
         switch status {
         case .notDetermined:
-            return localized("未请求", "Not Requested")
+            return localized("未请求", "Not Requested", "未要求")
         case .denied:
-            return localized("已拒绝", "Denied")
+            return localized("已拒绝", "Denied", "拒否済み")
         case .restricted:
-            return localized("受限制", "Restricted")
+            return localized("受限制", "Restricted", "制限付き")
         case .granted:
-            return localized("已授权", "Granted")
+            return localized("已授权", "Granted", "許可済み")
         }
     }
 
     private func permissionStatusDetail(_ status: AppPermissionStatus) -> String {
         switch status {
         case .notDetermined:
-            return localized("首次使用时会弹出系统授权框", "The system permission dialog will appear on first use")
+            return localized("首次使用时会弹出系统授权框", "The system permission dialog will appear on first use", "初回使用時にシステム許可ダイアログが表示されます")
         case .denied:
-            return localized("请到系统设置里手动开启权限", "Please enable this permission manually in Settings")
+            return localized("请到系统设置里手动开启权限", "Please enable this permission manually in Settings", "システム設定で手動で権限を有効にしてください")
         case .restricted:
-            return localized("当前设备限制了这项权限", "This permission is restricted on the current device")
+            return localized("当前设备限制了这项权限", "This permission is restricted on the current device", "この権限は現在のデバイスで制限されています")
         case .granted:
-            return localized("可以直接执行相关 Skill", "Related skills can run directly")
+            return localized("可以直接执行相关 Skill", "Related skills can run directly", "関連するスキルを直接実行できます")
         }
     }
 
@@ -533,9 +540,9 @@ struct ConfigurationsView: View {
         guard let selectedModel = engine.availableModels.first(where: { $0.id == selectedModelID }),
               engine.llm.isModelAvailable(selectedModel) else {
             if let missingModel = engine.availableModels.first(where: { $0.id == selectedModelID }) {
-                engine.llm.statusMessage = localized("请先在配置中下载 ", "Please download ")
+                engine.llm.statusMessage = localized("请先在配置中下载 ", "Please download ", "先に設定で ")
                     + missingModel.displayName
-                    + localized(" 模型", " first")
+                    + localized(" 模型", " first", " モデルをダウンロードしてください")
             }
             return false
         }

@@ -9,9 +9,7 @@ import PhotosUI
 import UIKit
 #endif
 
-private func localizedThinkingText(_ zh: String, _ en: String) -> String {
-    Locale.preferredLanguages.contains { $0.hasPrefix("zh") } ? zh : en
-}
+// localizedThinkingText は Localization.swift で定義（3言語対応版）
 
 // MARK: - 主入口
 
@@ -221,7 +219,7 @@ struct ContentView: View {
                     HStack(spacing: 6) {
                         Image(systemName: engine.config.enableThinking ? "sparkles" : "sparkles")
                             .font(.system(size: 11, weight: .semibold))
-                        Text(localizedThinkingText("思考", "Think"))
+                        Text(localizedThinkingText("思考", "Think", "思考"))
                             .font(.system(size: 11, weight: .semibold, design: .rounded))
                     }
                     .foregroundStyle(engine.config.enableThinking ? Theme.bg : Theme.textSecondary)
@@ -272,7 +270,7 @@ struct ContentView: View {
                 .font(.system(size: 26, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.textPrimary)
                 .padding(.top, 16)
-            Text("On-device AI Agent")
+            Text(localized("端末上AIエージェント", "On-device AI Agent", "オンデバイスAIエージェント"))
                 .font(.system(size: 14))
                 .foregroundStyle(Theme.textTertiary)
                 .padding(.top, 4)
@@ -342,7 +340,7 @@ struct ContentView: View {
                 .buttonStyle(.plain)
 
             #if os(macOS)
-            TextField("Message…", text: $inputText)
+            TextField(localized("メッセージ…", "Message…", "メッセージ…"), text: $inputText)
                 .textFieldStyle(.plain)
                 .font(.system(size: 15))
                 .foregroundStyle(Theme.textPrimary)
@@ -352,7 +350,7 @@ struct ContentView: View {
                 .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(Theme.border, lineWidth: 1))
                 .onSubmit { Task { await send() } }
             #else
-            TextField("Message…", text: $inputText, axis: .vertical)
+            TextField(localized("メッセージ…", "Message…", "メッセージ…"), text: $inputText, axis: .vertical)
                 .lineLimit(1...5)
                 .font(.system(size: 15))
                 .foregroundStyle(Theme.textPrimary)
@@ -1119,7 +1117,7 @@ struct ThinkingCardView: View {
             .replacingOccurrences(of: "\n", with: " ")
             .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !compact.isEmpty else { return localizedThinkingText("已捕获思考内容", "Captured thinking content") }
+        guard !compact.isEmpty else { return localizedThinkingText("已捕获思考内容", "Captured thinking content", "思考内容を取得しました") }
         return String(compact.prefix(72)) + (compact.count > 72 ? "…" : "")
     }
 
@@ -1133,7 +1131,7 @@ struct ThinkingCardView: View {
                     .background(Theme.accentSubtle, in: RoundedRectangle(cornerRadius: 7))
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(localizedThinkingText("思考", "Think"))
+                    Text(localizedThinkingText("思考", "Think", "思考"))
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.textPrimary)
                     if !isExpanded {
@@ -1146,7 +1144,7 @@ struct ThinkingCardView: View {
 
                 Spacer()
 
-                Text(localizedThinkingText("\(lineCount) 行", "\(lineCount) lines"))
+                Text(localizedThinkingText("\(lineCount) 行", "\(lineCount) lines", "\(lineCount) 行"))
                     .font(.system(size: 10, weight: .medium, design: .monospaced))
                     .foregroundStyle(Theme.textTertiary)
 
